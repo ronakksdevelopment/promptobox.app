@@ -3,6 +3,18 @@
    A bento box for prompts.
    ========================================================================== */
 
+/* ---------- Global reset: native [hidden] must always win ----------
+   Several components below set `display:flex`/`display:block` etc. as a
+   plain class rule (e.g. `.confirm-overlay{ display:flex; }`). A class
+   selector has higher specificity than the browser's default UA rule for
+   the `hidden` attribute, so without this override any element that is
+   both `.some-component` and `[hidden]` would incorrectly stay visible.
+   This rule uses `!important` specifically to guarantee `hidden` always
+   wins, regardless of how specific a later component rule is. */
+[hidden]{
+  display:none !important;
+}
+
 /* ---------- Design tokens ---------- */
 :root{
   --navy:#172033;
