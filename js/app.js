@@ -212,6 +212,7 @@ const Toast = {
 
 const Nav = {
   current: 'generate',
+  order: ['save', 'generate', 'settings'],
   screens: {},
   navButtons: {},
   init() {
@@ -226,6 +227,11 @@ const Nav = {
   },
   go(target, silent) {
     if (!Nav.screens[target]) return;
+    if (!silent && target !== Nav.current) {
+      const fromIdx = Nav.order.indexOf(Nav.current);
+      const toIdx = Nav.order.indexOf(target);
+      document.body.dataset.navDir = toIdx > fromIdx ? 'right' : 'left';
+    }
     Object.entries(Nav.screens).forEach(([key, el]) => {
       el.hidden = key !== target;
     });

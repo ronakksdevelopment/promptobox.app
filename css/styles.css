@@ -77,7 +77,8 @@
 }
 
 /* ---------- Reset ---------- */
-*, *::before, *::after{ box-sizing:border-box; }
+*, *::before, *::after{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html{ overscroll-behavior-y:contain; }
 html,body{ height:100%; }
 body{
   margin:0;
@@ -88,7 +89,11 @@ body{
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
+  overscroll-behavior-y:contain;
   transition: background var(--dur-base) var(--ease), color var(--dur-base) var(--ease);
+}
+button, .prompt-card, .bottom-nav__item, .fab, .icon-btn, .toggle-chip, .option-card, .csel__btn{
+  touch-action:manipulation;
 }
 h1,h2,h3,p,ul,figure{ margin:0; }
 ul{ list-style:none; padding:0; }
@@ -257,6 +262,16 @@ img{ max-width:100%; display:block; }
   animation: fadeIn var(--dur-base) var(--ease);
 }
 @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+
+/* Directional screen transition: the bottom nav is laid out Save · Generate ·
+   Settings, so moving right/left through it should read as a single physical
+   pane sliding, not an unrelated fade. Nav.go() sets this attribute on the
+   <body> right before flipping `hidden`, so it's a one-shot animation for the
+   incoming screen only — not a hover/scroll effect. */
+body[data-nav-dir="right"] .screen:not([hidden]){ animation: slideFromRight var(--dur-base) var(--ease); }
+body[data-nav-dir="left"] .screen:not([hidden]){ animation: slideFromLeft var(--dur-base) var(--ease); }
+@keyframes slideFromRight{ from{ opacity:0; transform:translateX(14px);} to{ opacity:1; transform:translateX(0);} }
+@keyframes slideFromLeft{ from{ opacity:0; transform:translateX(-14px);} to{ opacity:1; transform:translateX(0);} }
 
 .screen-heading{
   font-size:23px;
@@ -463,9 +478,12 @@ img{ max-width:100%; display:block; }
   border:none;
   background:transparent;
   color:var(--text-primary);
-  font-size:15px;
+  font-size:16px;
   line-height:1.5;
   font-family:var(--font-body);
+}
+@media (min-width:640px){
+  .idea-textarea{ font-size:15px; }
 }
 .idea-textarea::placeholder{ color:var(--text-muted); }
 .composer-box__hint{
@@ -508,11 +526,15 @@ img{ max-width:100%; display:block; }
   border:1.5px solid var(--border-soft);
   border-radius:12px;
   padding:10px 32px 10px 12px;
-  font-size:13.5px;
+  font-size:16px;
   font-weight:600;
   color:var(--text-primary);
-  min-height:42px;
+  min-height:44px;
   transition: border-color var(--dur-fast) var(--ease);
+}
+@media (min-width:640px){
+  /* Below 640px, inputs stay at 16px to stop iOS Safari auto-zooming on focus. */
+  .select-wrap select{ font-size:13.5px; min-height:42px; }
 }
 .select-wrap select:focus{ border-color:var(--blue); }
 .select-wrap__icon{
@@ -522,7 +544,12 @@ img{ max-width:100%; display:block; }
   color:var(--text-muted);
   pointer-events:none;
 }
-.select-wrap--sm select{ min-height:38px; padding:8px 28px 8px 11px; font-size:12.5px; }
+.select-wrap--sm select{ min-height:44px; padding:8px 28px 8px 11px; font-size:16px; }
+@media (min-width:640px){
+  /* 16px stops iOS Safari auto-zooming a <select> on focus; only relax it
+     once we're past mobile widths where that zoom doesn't happen. */
+  .select-wrap--sm select{ min-height:38px; font-size:12.5px; }
+}
 
 /* ---------- Generating state ---------- */
 .generating-box{
@@ -565,6 +592,11 @@ img{ max-width:100%; display:block; }
   overflow:hidden;
   box-shadow:var(--shadow-card);
   border-top:3px solid var(--mint);
+  animation: resultReveal 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes resultReveal{
+  from{ opacity:0; transform:translateY(10px) scale(0.98); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
 }
 .result-box__header{
   display:flex;
@@ -629,9 +661,12 @@ img{ max-width:100%; display:block; }
 .search-field i{ color:var(--text-muted); font-size:13.5px; }
 .search-field input{
   flex:1;
-  min-height:42px;
+  min-height:44px;
   color:var(--text-primary);
-  font-size:14px;
+  font-size:16px;
+}
+@media (min-width:640px){
+  .search-field input{ min-height:42px; font-size:14px; }
 }
 .search-field input::placeholder{ color:var(--text-muted); }
 
@@ -815,13 +850,18 @@ img{ max-width:100%; display:block; }
   border:1.5px solid var(--border-soft);
   border-radius:12px;
   padding:11px 13px;
-  font-size:14px;
+  font-size:16px;
   color:var(--text-primary);
   min-height:44px;
   transition: border-color var(--dur-fast) var(--ease);
   width:100%;
 }
-.field-group textarea{ min-height:120px; resize:vertical; line-height:1.5; font-family:var(--font-mono); font-size:13px; }
+.field-group textarea{ min-height:120px; resize:vertical; line-height:1.5; font-family:var(--font-mono); font-size:16px; }
+@media (min-width:640px){
+  .field-group input[type="text"],
+  .field-group input[type="password"]{ font-size:14px; }
+  .field-group textarea{ font-size:13px; }
+}
 .field-group input:focus, .field-group textarea:focus{ border-color:var(--blue); }
 .field-group input::placeholder, .field-group textarea::placeholder{ color:var(--text-muted); }
 
