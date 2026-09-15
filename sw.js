@@ -1,100 +1,102 @@
-/* PromptoBox service worker
-   Cache-first for the app shell, network-first fallback for everything else.
-   The OpenRouter API is never cached — generation always needs a live connection. */
+/* ==========================================================================
+   PromptoBox — sw.js
+   Static-asset caching only. Never caches OpenRouter API responses.
+   ========================================================================== */
+'use strict';
 
-const CACHE_VERSION = "promptobox-v1.0.1";
-const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./css/styles.css",
-  "./js/app.js",
-  "./assets/logo.png",
-  "./assets/icon-192.png",
-  "./assets/icon-512.png",
-  "./assets/favicon.png",
-  "./assets/favicon.ico",
-  "./assets/apple-touch-icon.png",
+const CACHE_VERSION = 'promptobox-v1.0.0';
+const STATIC_CACHE = `${CACHE_VERSION}-static`;
+
+const PRECACHE_URLS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './css/styles.css',
+  './js/app.js',
+  './assets/logo.png',
+  './assets/icon-192.png',
+  './assets/icon-512.png',
+  './assets/favicon.png',
 ];
 
-// Best-effort precache of CDN assets (fonts, icon font). Failures here
-// must never block installation, since they're cross-origin and optional.
-const CDN_SHELL = [
-  "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css",
-];
-
-self.addEventListener("install", (event) => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(CACHE_VERSION)
-      .then(async (cache) => {
-        await cache.addAll(APP_SHELL).catch(() => {});
-        await Promise.all(
-          CDN_SHELL.map((url) =>
-            fetch(url, { mode: "cors" })
-              .then((res) => (res && res.ok ? cache.put(url, res) : null))
-              .catch(() => {})
-          )
-        );
+    caches.open(STATIC_CACHE)
+      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+      .catch(() => {
+        // Precaching failure should not block installation.
+        return self.skipWaiting();
       })
   );
-  self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key !== CACHE_VERSION)
-            .map((key) => caches.delete(key))
-        )
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys
+          .filter((key) => key.startsWith('promptobox-') && key !== STATIC_CACHE)
+          .map((key) => caches.delete(key))
       )
-      .then(() => self.clients.claim())
+    ).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  const url = new URL(req.url);
+function isNavigationRequest(request) {
+  return request.mode === 'navigate';
+}
 
-  if (req.method !== "GET") return;
+function isStaticAsset(url) {
+  return (
+    url.origin === self.location.origin &&
+    (
+      PRECACHE_URLS.some((p) => url.pathname.endsWith(p.replace('./', '/'))) ||
+      /\.(css|js|png|jpg|jpeg|svg|webp|ico|woff2?)$/.test(url.pathname)
+    )
+  );
+}
 
-  // Never intercept the OpenRouter API — always go live.
-  if (url.hostname.includes("openrouter.ai")) return;
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  if (request.method !== 'GET') return;
 
-  // App shell / same-origin: cache-first, fall back to network, then update cache.
-  if (url.origin === self.location.origin) {
+  const url = new URL(request.url);
+
+  // Never intercept/cache OpenRouter (or any cross-origin API) requests.
+  if (url.origin !== self.location.origin) {
+    return; // let the browser handle it normally (network only)
+  }
+
+  if (isNavigationRequest(request)) {
     event.respondWith(
-      caches.match(req).then((cached) => {
-        const networkFetch = fetch(req)
-          .then((res) => {
-            if (res && res.status === 200) {
-              const clone = res.clone();
-              caches.open(CACHE_VERSION).then((cache) => cache.put(req, clone));
+      fetch(request).catch(() =>
+        caches.match('./index.html').then((cached) => cached || caches.match('./'))
+      )
+    );
+    return;
+  }
+
+  if (isStaticAsset(url)) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request)
+          .then((response) => {
+            if (response && response.ok) {
+              const clone = response.clone();
+              caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
             }
-            return res;
+            return response;
           })
-          .catch(() => cached || caches.match("./index.html"));
-        return cached || networkFetch;
+          .catch(() => cached);
       })
     );
     return;
   }
 
-  // Cross-origin (fonts, icons CDN): network-first, cache fallback.
+  // Default: network, falling back to cache if available.
   event.respondWith(
-    fetch(req)
-      .then((res) => {
-        if (res && res.status === 200) {
-          const clone = res.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(req, clone));
-        }
-        return res;
-      })
-      .catch(() => caches.match(req))
+    fetch(request).catch(() => caches.match(request))
   );
 });

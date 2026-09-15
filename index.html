@@ -1,516 +1,541 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-<title>PromptoBox — Simple ideas. Powerful prompts.</title>
-<meta name="description" content="PromptoBox is a local-first AI prompt workspace. Describe what you want in plain language and get a detailed, professional master prompt back. No account. No backend." />
-<meta name="theme-color" content="#0F172A" />
-
-<link rel="manifest" href="manifest.json" />
-<link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png" />
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="PromptoBox" />
-
-<!-- Open Graph -->
-<meta property="og:title" content="PromptoBox — Simple ideas. Powerful prompts." />
-<meta property="og:description" content="A bento box for prompts. Turn plain language into detailed, professional master prompts." />
-<meta property="og:image" content="assets/icon-512.png" />
-<meta property="og:type" content="website" />
-
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-<link rel="stylesheet" href="css/styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PromptoBox — A bento box for prompts</title>
+<meta name="description" content="Turn simple ideas into powerful, professional master prompts. Save, organize, and export your prompt collection — all stored locally.">
+<meta name="theme-color" content="#3B82F6">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" href="assets/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PromptoBox">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-<a class="skip-link" href="#main-content">Skip to content</a>
+<div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
-<!-- ============ HEADER ============ -->
-<header class="app-header">
-  <div class="app-header-inner">
-    <div class="brand">
-      <img src="assets/logo.png" alt="PromptoBox logo" class="brand-logo" width="32" height="32" />
-      <span class="brand-name">PromptoBox</span>
-      <span class="brand-version">v1.0</span>
-    </div>
-    <div class="header-actions">
-      <button class="chip-btn" id="apiStatusChip" type="button" aria-label="API key status">
-        <span class="status-dot" id="apiStatusDot"></span>
-        <span class="chip-btn-label" id="apiStatusLabel">No Key</span>
-        <i class="fa-solid fa-key" aria-hidden="true"></i>
-      </button>
-      <button class="icon-btn" id="themeToggleBtn" type="button" aria-label="Toggle theme">
-        <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
-      </button>
-    </div>
-  </div>
+<div class="app-shell">
 
-  <!-- Install banner -->
-  <div class="install-banner" id="installBanner" hidden>
-    <div class="install-banner-text">
-      <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
-      <div>
-        <p class="install-banner-title">Install PromptoBox</p>
-        <p class="install-banner-sub">Keep your prompt box one tap away.</p>
+  <!-- ===== HEADER ===== -->
+  <header class="app-header">
+    <div class="app-header__brand">
+      <img src="assets/logo.png" alt="PromptoBox" class="app-header__logo">
+      <div class="app-header__title">
+        <span class="app-header__word">PromptoBox</span>
+        <span class="badge badge--version">v1.0</span>
       </div>
     </div>
-    <div class="install-banner-actions">
-      <button class="btn btn-primary btn-sm" id="installBtn" type="button">Install</button>
-      <button class="icon-btn icon-btn-sm" id="installDismissBtn" type="button" aria-label="Dismiss install banner">
-        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    <div class="app-header__status">
+      <button class="status-pill" id="apiStatusPill" type="button" aria-label="API configuration status">
+        <span class="status-pill__dot" id="apiStatusDot"></span>
+        <span id="apiStatusLabel">No key</span>
       </button>
+      <span class="status-pill status-pill--net" id="netStatusPill" aria-live="polite">
+        <i class="fa-solid fa-wifi" id="netStatusIcon"></i>
+      </span>
+    </div>
+  </header>
+
+  <!-- ===== INSTALL BANNER ===== -->
+  <div class="install-banner" id="installBanner" hidden>
+    <div class="install-banner__icon"><i class="fa-solid fa-box-open"></i></div>
+    <div class="install-banner__text">
+      <strong>Install PromptoBox</strong>
+      <span>Keep your prompt box one tap away.</span>
+    </div>
+    <div class="install-banner__actions">
+      <button class="btn btn--primary btn--sm" id="installBtn" type="button">Install</button>
+      <button class="icon-btn" id="installDismissBtn" type="button" aria-label="Dismiss install banner"><i class="fa-solid fa-xmark"></i></button>
     </div>
   </div>
 
-  <!-- Offline banner -->
-  <div class="offline-banner" id="offlineBanner" hidden role="status">
-    <i class="fa-solid fa-plug-circle-xmark" aria-hidden="true"></i>
-    <span>You're offline. Saved prompts are still available; generation needs a connection.</span>
-  </div>
-</header>
+  <!-- ===== MAIN ===== -->
+  <main class="app-main" id="mainContent">
 
-<!-- Toast region -->
-<div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true" role="status"></div>
+    <!-- ---------- GENERATE SCREEN ---------- -->
+    <section class="screen" id="screen-generate" data-screen="generate" aria-labelledby="generateHeading">
+      <div class="bento-hero">
+        <h1 id="generateHeading" class="screen-heading">Create a prompt</h1>
+        <p class="screen-subheading">Tell PromptoBox what you need. We'll turn it into a powerful master prompt.</p>
+      </div>
 
-<main id="main-content">
-
-  <!-- ================= GENERATE VIEW ================= -->
-  <section class="view" id="view-generate" data-view="generate">
-    <div class="page">
-
-      <section class="hero-card bento-card">
-        <div class="hero-glow" aria-hidden="true"></div>
-        <div class="hero-top-row">
-          <div class="pill pill-tertiary">
-            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
-            <span>No prompt-engineering knowledge required</span>
+      <form id="generateForm" class="composer-box" novalidate>
+        <div class="composer-box__compartment composer-box__compartment--in">
+          <div class="compartment-label">
+            <i class="fa-solid fa-lightbulb"></i>
+            <span>Your idea</span>
           </div>
-          <div class="pill pill-status" id="engineStatusPill">
-            <span class="status-dot status-dot-lg"></span>
-            <span id="engineStatusText">Bento Engine Ready</span>
-          </div>
-        </div>
-        <h1 class="hero-title">Create a prompt</h1>
-        <p class="hero-sub">Tell PromptoBox what you need. We'll turn it into a powerful master prompt.</p>
-      </section>
-
-      <!-- Compartment 1: Raw concept -->
-      <section class="bento-card">
-        <div class="card-header">
-          <div class="card-header-title">
-            <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
-            <span>1. Raw Concept</span>
-          </div>
-          <button class="link-btn" id="clearInputBtn" type="button">Clear</button>
+          <textarea
+            id="ideaInput"
+            class="idea-textarea"
+            placeholder="Example: Create a modern landing page for my coffee shop…"
+            aria-label="Describe what you need"
+            rows="5"
+            required></textarea>
+          <p class="composer-box__hint">No prompt-engineering knowledge needed — just describe what you want in plain words.</p>
         </div>
 
-        <div class="textarea-wrap">
-          <label for="promptInput" class="sr-only">Describe what you need</label>
-          <textarea id="promptInput" rows="5" maxlength="4000"
-            placeholder="Example: Create a modern landing page for my coffee shop…"></textarea>
-          <span class="char-count" id="inputCharCount">0 chars</span>
-        </div>
-
-        <div class="quick-starters">
-          <span class="field-label">Quick Starters</span>
-          <div class="chip-row" id="quickChips">
-            <button class="starter-chip" type="button" data-prompt="Create a modern, high-converting landing page for my specialty cold-brew coffee shop, targeting design-conscious remote workers.">☕ Coffee Shop Landing</button>
-            <button class="starter-chip" type="button" data-prompt="Build a clean Python CLI tool that parses developer logs, extracts error frequencies, and prints readable, colorized terminal output.">🐍 Python CLI Tool</button>
-            <button class="starter-chip" type="button" data-prompt="Write a SaaS product launch announcement for social media, targeting indie founders and product designers.">📈 SaaS Marketing Copy</button>
-            <button class="starter-chip" type="button" data-prompt="Generate a highly detailed image-generation prompt for a 3D clay-style bento box app icon with soft studio lighting.">🎨 3D Icon Prompt</button>
+        <div class="option-grid">
+          <div class="option-field">
+            <label for="optCategory">Type</label>
+            <div class="select-wrap">
+              <select id="optCategory">
+                <option value="general">General</option>
+                <option value="coding">Coding</option>
+                <option value="image">Image</option>
+                <option value="marketing">Marketing</option>
+                <option value="writing">Writing</option>
+                <option value="business">Business</option>
+              </select>
+              <i class="fa-solid fa-chevron-down select-wrap__icon"></i>
+            </div>
           </div>
-        </div>
-      </section>
-
-      <!-- Compartment 2: Tuning -->
-      <section class="bento-card">
-        <div class="card-header">
-          <div class="card-header-title">
-            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-            <span>2. Prompt Tuning</span>
+          <div class="option-field">
+            <label for="optTone">Tone</label>
+            <div class="select-wrap">
+              <select id="optTone">
+                <option value="professional">Professional</option>
+                <option value="friendly">Friendly</option>
+                <option value="playful">Playful</option>
+                <option value="formal">Formal</option>
+                <option value="bold">Bold</option>
+              </select>
+              <i class="fa-solid fa-chevron-down select-wrap__icon"></i>
+            </div>
           </div>
-        </div>
-
-        <div class="field-group">
-          <span class="field-label">Prompt Category</span>
-          <div class="chip-row" id="categoryChips" role="group" aria-label="Prompt category">
-            <button class="option-chip is-active" type="button" data-value="coding"><i class="fa-solid fa-code"></i> Coding</button>
-            <button class="option-chip" type="button" data-value="copy"><i class="fa-solid fa-pen-nib"></i> Copy</button>
-            <button class="option-chip" type="button" data-value="creative"><i class="fa-solid fa-palette"></i> Creative</button>
-            <button class="option-chip" type="button" data-value="analysis"><i class="fa-solid fa-chart-line"></i> Analysis</button>
-            <button class="option-chip" type="button" data-value="general"><i class="fa-solid fa-circle-nodes"></i> General</button>
-            <button class="option-chip" type="button" data-value="custom"><i class="fa-solid fa-ellipsis"></i> Custom</button>
+          <div class="option-field">
+            <label for="optFormat">Format</label>
+            <div class="select-wrap">
+              <select id="optFormat">
+                <option value="structured">Structured</option>
+                <option value="narrative">Narrative</option>
+                <option value="bulleted">Bulleted</option>
+              </select>
+              <i class="fa-solid fa-chevron-down select-wrap__icon"></i>
+            </div>
+          </div>
+          <div class="option-field">
+            <label for="optDetail">Detail level</label>
+            <div class="select-wrap">
+              <select id="optDetail">
+                <option value="standard">Standard</option>
+                <option value="concise">Concise</option>
+                <option value="thorough">Thorough</option>
+              </select>
+              <i class="fa-solid fa-chevron-down select-wrap__icon"></i>
+            </div>
           </div>
         </div>
 
-        <div class="field-group">
-          <span class="field-label">Desired Format</span>
-          <div class="chip-row" id="formatChips" role="group" aria-label="Output format">
-            <button class="option-chip is-active" type="button" data-value="markdown">Markdown Doc</button>
-            <button class="option-chip" type="button" data-value="steps">Step-by-Step</button>
-            <button class="option-chip" type="button" data-value="code">Executable Code</button>
-            <button class="option-chip" type="button" data-value="template">Template</button>
-          </div>
-        </div>
-
-        <div class="field-row-2">
-          <div class="field-group">
-            <label class="field-label" for="toneSelect">Tone</label>
-            <select id="toneSelect" class="select-input">
-              <option value="expert" selected>Expert &amp; Precise</option>
-              <option value="friendly">Friendly &amp; Clear</option>
-              <option value="formal">Formal &amp; Corporate</option>
-              <option value="playful">Playful &amp; Bold</option>
-            </select>
-          </div>
-          <div class="field-group">
-            <label class="field-label" for="detailSelect">Detail Level</label>
-            <select id="detailSelect" class="select-input">
-              <option value="concise">Concise &amp; Direct</option>
-              <option value="deep" selected>Deep &amp; Comprehensive</option>
-              <option value="exhaustive">Exhaustive</option>
-            </select>
-          </div>
-        </div>
-
-        <button class="btn btn-primary btn-generate" id="generateBtn" type="button">
-          <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-          <span>Generate Master Prompt</span>
+        <button type="submit" class="btn btn--primary btn--generate" id="generateBtn">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Generate Prompt</span>
         </button>
-      </section>
+        <p class="composer-box__offline-note" id="generateOfflineNote" hidden>
+          <i class="fa-solid fa-plug-circle-xmark"></i> AI generation needs an internet connection. You can still browse and save prompts offline.
+        </p>
+      </form>
 
-      <!-- Generation status / typing animation -->
-      <section class="bento-card" id="generatingCard" hidden aria-live="polite">
-        <div class="generating-row">
-          <span class="spark-spinner" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
-          <div>
-            <p class="generating-title">Building your master prompt…</p>
-            <p class="generating-sub" id="generatingSub">Talking to the model…</p>
+      <!-- Generating state -->
+      <div class="generating-box" id="generatingBox" hidden aria-live="polite">
+        <div class="generating-box__spark">
+          <i class="fa-solid fa-sparkles"></i>
+        </div>
+        <p class="generating-box__status">Building your master prompt…</p>
+        <button class="btn btn--ghost btn--sm" id="skipGenAnim" type="button">Skip animation</button>
+      </div>
+
+      <!-- Result -->
+      <div class="result-box" id="resultBox" hidden>
+        <div class="result-box__header">
+          <h2 class="result-box__title"><i class="fa-solid fa-box-archive"></i> Your Master Prompt</h2>
+          <div class="result-box__actions">
+            <button class="icon-btn" id="copyResultBtn" type="button" aria-label="Copy prompt" data-tooltip="Copy"><i class="fa-solid fa-copy"></i></button>
+            <button class="icon-btn" id="shareResultBtn" type="button" aria-label="Share prompt" data-tooltip="Share"><i class="fa-solid fa-share-nodes"></i></button>
+            <button class="icon-btn" id="saveResultBtn" type="button" aria-label="Save prompt" data-tooltip="Save"><i class="fa-solid fa-bookmark"></i></button>
+            <button class="icon-btn" id="regenResultBtn" type="button" aria-label="Regenerate prompt" data-tooltip="Regenerate"><i class="fa-solid fa-rotate-right"></i></button>
           </div>
         </div>
-        <button class="link-btn" id="skipTypingBtn" type="button" hidden>Skip animation</button>
-      </section>
+        <pre class="result-box__codebox" id="resultCodebox" tabindex="0"></pre>
+      </div>
 
-      <!-- Error card -->
-      <section class="bento-card error-card" id="errorCard" hidden role="alert">
-        <div class="card-header">
-          <div class="card-header-title text-coral">
-            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            <span>Generation Failed</span>
-          </div>
-        </div>
-        <p id="errorMessage">Generation couldn't start. Check your OpenRouter API key and try again.</p>
-        <button class="btn btn-secondary" id="errorRetryBtn" type="button">Try Again</button>
-      </section>
+      <div class="error-box" id="generateErrorBox" hidden role="alert">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="generateErrorText"></span>
+      </div>
+    </section>
 
-      <!-- Result card -->
-      <section class="bento-card result-card" id="resultCard" hidden>
-        <div class="card-header">
-          <div class="card-header-title text-mint">
-            <span class="status-dot status-dot-mint"></span>
-            <span>Your Master Prompt</span>
-            <span class="badge" id="resultCategoryBadge">CODING</span>
-          </div>
-        </div>
-        <div class="result-actions">
-          <button class="icon-action" id="copyBtn" type="button" aria-label="Copy prompt"><i class="fa-solid fa-copy"></i></button>
-          <button class="icon-action" id="saveResultBtn" type="button" aria-label="Save prompt"><i class="fa-solid fa-bookmark"></i></button>
-          <button class="icon-action" id="shareBtn" type="button" aria-label="Share prompt"><i class="fa-solid fa-share-nodes"></i></button>
-          <button class="icon-action" id="regenerateBtn" type="button" aria-label="Regenerate prompt"><i class="fa-solid fa-rotate"></i></button>
-        </div>
-        <div class="codebox-wrap">
-          <pre class="codebox" id="masterPromptOutput" tabindex="0"></pre>
-        </div>
-        <div class="result-meta">
-          <span><i class="fa-regular fa-file-lines"></i> <span id="resultWordCount">0 words</span> · <span id="resultCharCount">0 characters</span></span>
-        </div>
-      </section>
-
-      <!-- Recently saved teaser -->
-      <section class="bento-card">
-        <div class="card-header">
-          <div class="card-header-title">
-            <i class="fa-solid fa-box-archive" aria-hidden="true"></i>
-            <span>Recently Stored in your Box</span>
-          </div>
-          <span class="badge badge-muted" id="recentCountBadge">0 saved</span>
-        </div>
-        <div id="recentSavedList" class="recent-list"></div>
-      </section>
-
-    </div>
-  </section>
-
-  <!-- ================= SAVE / SAVED PROMPTS VIEW ================= -->
-  <section class="view" id="view-save" data-view="save" hidden>
-    <div class="page">
-
-      <div class="page-title-row">
+    <!-- ---------- SAVE SCREEN ---------- -->
+    <section class="screen" id="screen-save" data-screen="save" aria-labelledby="saveHeading" hidden>
+      <div class="screen-titlebar">
         <div>
-          <h1 class="page-title">Saved Prompts</h1>
-          <p class="page-sub">Your personal prompt box.</p>
+          <h1 id="saveHeading" class="screen-heading">Saved Prompts</h1>
+          <p class="screen-subheading">Your personal prompt box.</p>
         </div>
+        <button class="fab" id="addManualBtn" type="button" aria-label="Add prompt manually">
+          <i class="fa-solid fa-plus"></i>
+        </button>
       </div>
 
       <div class="save-toolbar">
-        <button class="btn btn-secondary btn-sm" id="exportBtn" type="button"><i class="fa-solid fa-download"></i> Export Box</button>
-        <button class="btn btn-secondary btn-sm" id="importBtn" type="button"><i class="fa-solid fa-upload"></i> Import</button>
-        <input type="file" id="importFileInput" accept="application/json" hidden />
-      </div>
-
-      <section class="bento-card stats-card">
-        <div class="stats-row">
-          <div class="stat-item"><span class="stat-value" id="statCount">0</span><span class="stat-label">Prompts saved</span></div>
-          <div class="stat-item"><span class="stat-value" id="statSize">0 KB</span><span class="stat-label">Stored locally</span></div>
-          <div class="stat-item"><span class="stat-value">0</span><span class="stat-label">Cloud dependencies</span></div>
+        <div class="search-field">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="search" id="searchInput" placeholder="Search prompts…" aria-label="Search saved prompts">
         </div>
-        <div class="pill pill-mint"><i class="fa-solid fa-shield-halved"></i> 100% Private</div>
-      </section>
-
-      <div class="search-wrap">
-        <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
-        <label for="searchInput" class="sr-only">Search saved prompts</label>
-        <input type="search" id="searchInput" placeholder="Filter keywords, tags, or template variable" />
+        <div class="save-toolbar__row">
+          <div class="select-wrap select-wrap--sm">
+            <select id="filterCategory" aria-label="Filter by category">
+              <option value="all">All categories</option>
+              <option value="general">General</option>
+              <option value="coding">Coding</option>
+              <option value="image">Image</option>
+              <option value="marketing">Marketing</option>
+              <option value="writing">Writing</option>
+              <option value="business">Business</option>
+            </select>
+            <i class="fa-solid fa-chevron-down select-wrap__icon"></i>
+          </div>
+          <div class="select-wrap select-wrap--sm">
+            <select id="sortOrder" aria-label="Sort order">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+            <i class="fa-solid fa-chevron-down select-wrap__icon"></i>
+          </div>
+          <button class="toggle-chip" id="favOnlyBtn" type="button" aria-pressed="false">
+            <i class="fa-solid fa-star"></i> Favorites
+          </button>
+        </div>
       </div>
 
-      <div class="sort-row" role="group" aria-label="Sort saved prompts">
-        <button class="option-chip is-active" data-sort="newest" type="button">Newest</button>
-        <button class="option-chip" data-sort="oldest" type="button">Oldest</button>
-        <button class="option-chip" data-sort="favs" type="button"><i class="fa-solid fa-star"></i> Favs</button>
+      <div class="save-io-row">
+        <button class="btn btn--outline btn--sm" id="exportBtn" type="button"><i class="fa-solid fa-download"></i> Export</button>
+        <button class="btn btn--outline btn--sm" id="importBtn" type="button"><i class="fa-solid fa-upload"></i> Import</button>
+        <input type="file" id="importFileInput" accept="application/json" hidden>
       </div>
 
-      <div class="chip-row" id="categoryFilterChips"></div>
+      <div class="bento-grid" id="savedGrid"></div>
 
-      <div id="savedPromptsList" class="saved-list"></div>
-
-      <!-- Empty state -->
       <div class="empty-state" id="emptyState" hidden>
-        <div class="empty-illustration" aria-hidden="true">
-          <div class="empty-bento">
-            <span class="empty-cell empty-cell-1"></span>
-            <span class="empty-cell empty-cell-2"></span>
-            <span class="empty-cell empty-cell-3"></span>
-            <span class="empty-cell empty-cell-4"></span>
+        <div class="empty-state__illustration" aria-hidden="true">
+          <i class="fa-solid fa-box-open"></i>
+        </div>
+        <p class="empty-state__title">Your prompt box is empty.</p>
+        <p class="empty-state__body">Generate your first master prompt and save it here.</p>
+      </div>
+
+      <div class="empty-state" id="noResultsState" hidden>
+        <div class="empty-state__illustration" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <p class="empty-state__title">No prompts match.</p>
+        <p class="empty-state__body">Try a different search term or clear your filters.</p>
+      </div>
+    </section>
+
+    <!-- ---------- SETTINGS SCREEN ---------- -->
+    <section class="screen" id="screen-settings" data-screen="settings" aria-labelledby="settingsHeading" hidden>
+      <h1 id="settingsHeading" class="screen-heading">Settings</h1>
+      <p class="screen-subheading">Configure your workspace.</p>
+
+      <!-- API card -->
+      <div class="settings-card">
+        <div class="settings-card__head">
+          <i class="fa-solid fa-plug settings-card__icon"></i>
+          <h2>OpenRouter API</h2>
+        </div>
+        <div class="field-group">
+          <label for="apiKeyInput">API key</label>
+          <div class="key-input-wrap">
+            <input type="password" id="apiKeyInput" placeholder="sk-or-v1-…" autocomplete="off" spellcheck="false">
+            <button type="button" class="icon-btn" id="toggleKeyVisibility" aria-label="Show or hide API key"><i class="fa-solid fa-eye"></i></button>
           </div>
         </div>
-        <p class="empty-title">Your prompt box is empty.</p>
-        <p class="empty-sub">Generate your first master prompt and save it here.</p>
-        <button class="btn btn-primary" id="emptyGenerateBtn" type="button">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Generate a Prompt
-        </button>
+        <div class="settings-card__row">
+          <button class="btn btn--primary btn--sm" id="saveKeyBtn" type="button"><i class="fa-solid fa-check"></i> Save Key</button>
+          <button class="btn btn--outline btn--sm" id="clearKeyBtn" type="button"><i class="fa-solid fa-trash"></i> Clear Key</button>
+          <button class="btn btn--ghost btn--sm" id="testKeyBtn" type="button"><i class="fa-solid fa-satellite-dish"></i> Test connection</button>
+        </div>
+        <p class="key-status" id="keyStatusText">No API key configured.</p>
+        <div class="privacy-note">
+          <i class="fa-solid fa-shield-halved"></i>
+          <p>Your API key is stored locally in this browser only. Client-side keys can be inspected by anyone using this device or browser, so they can't be truly secret — use an OpenRouter key with sensible spending limits and restrictions. Your key is never sent anywhere except directly to OpenRouter when generating a prompt.</p>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Prompt detail modal -->
-  <div class="modal-overlay" id="promptModalOverlay" hidden>
-    <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="promptModalTitle">
-      <div class="modal-header">
-        <h2 id="promptModalTitle">Prompt</h2>
-        <button class="icon-btn" id="promptModalCloseBtn" type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <!-- Model card -->
+      <div class="settings-card">
+        <div class="settings-card__head">
+          <i class="fa-solid fa-microchip settings-card__icon"></i>
+          <h2>Model</h2>
+        </div>
+        <div class="field-group">
+          <label for="modelSelect">Model</label>
+          <div class="select-wrap">
+            <select id="modelSelect">
+              <option value="openrouter/free">openrouter/free (default)</option>
+              <option value="custom">Custom model…</option>
+            </select>
+            <i class="fa-solid fa-chevron-down select-wrap__icon"></i>
+          </div>
+        </div>
+        <div class="field-group" id="customModelGroup" hidden>
+          <label for="customModelInput">Custom model ID</label>
+          <input type="text" id="customModelInput" placeholder="e.g. anthropic/claude-3.5-sonnet">
+        </div>
+        <p class="key-status" id="currentModelText">Current model: openrouter/free</p>
       </div>
-      <div class="modal-body">
-        <pre class="codebox" id="promptModalBody"></pre>
+
+      <!-- Advanced generation settings -->
+      <div class="settings-card">
+        <button class="advanced-toggle" id="advancedToggle" type="button" aria-expanded="false" aria-controls="advancedPanel">
+          <span><i class="fa-solid fa-sliders settings-card__icon"></i> Advanced Generation Settings</span>
+          <i class="fa-solid fa-chevron-down advanced-toggle__chevron"></i>
+        </button>
+        <div class="advanced-panel" id="advancedPanel" hidden>
+          <div class="range-field">
+            <label for="tempRange">Temperature <span id="tempVal">0.8</span></label>
+            <input type="range" id="tempRange" min="0" max="2" step="0.1" value="0.8">
+          </div>
+          <div class="range-field">
+            <label for="maxTokensRange">Max tokens <span id="maxTokensVal">1200</span></label>
+            <input type="range" id="maxTokensRange" min="200" max="4000" step="100" value="1200">
+          </div>
+          <div class="range-field">
+            <label for="topPRange">Top P <span id="topPVal">1.0</span></label>
+            <input type="range" id="topPRange" min="0" max="1" step="0.05" value="1">
+          </div>
+          <div class="range-field">
+            <label for="freqPenaltyRange">Frequency penalty <span id="freqPenaltyVal">0.0</span></label>
+            <input type="range" id="freqPenaltyRange" min="-2" max="2" step="0.1" value="0">
+          </div>
+          <div class="range-field">
+            <label for="presPenaltyRange">Presence penalty <span id="presPenaltyVal">0.0</span></label>
+            <input type="range" id="presPenaltyRange" min="-2" max="2" step="0.1" value="0">
+          </div>
+        </div>
       </div>
-      <div class="modal-footer">
-        <button class="icon-action" id="modalCopyBtn" type="button" aria-label="Copy"><i class="fa-solid fa-copy"></i></button>
-        <button class="icon-action" id="modalShareBtn" type="button" aria-label="Share"><i class="fa-solid fa-share-nodes"></i></button>
-        <button class="icon-action" id="modalFavBtn" type="button" aria-label="Toggle favorite"><i class="fa-regular fa-star"></i></button>
-        <button class="icon-action icon-action-danger" id="modalDeleteBtn" type="button" aria-label="Delete"><i class="fa-solid fa-trash"></i></button>
+
+      <!-- Theme card -->
+      <div class="settings-card">
+        <div class="settings-card__head">
+          <i class="fa-solid fa-palette settings-card__icon"></i>
+          <h2>Theme</h2>
+        </div>
+        <div class="segmented" role="radiogroup" aria-label="Theme">
+          <button class="segmented__btn" data-theme="light" role="radio" aria-checked="false" type="button"><i class="fa-solid fa-sun"></i> Light</button>
+          <button class="segmented__btn" data-theme="dark" role="radio" aria-checked="false" type="button"><i class="fa-solid fa-moon"></i> Dark</button>
+          <button class="segmented__btn" data-theme="system" role="radio" aria-checked="false" type="button"><i class="fa-solid fa-circle-half-stroke"></i> System</button>
+        </div>
+      </div>
+
+      <!-- App info -->
+      <div class="settings-card">
+        <div class="settings-card__head">
+          <i class="fa-solid fa-circle-info settings-card__icon"></i>
+          <h2>App information</h2>
+        </div>
+        <ul class="info-list">
+          <li><span>Version</span><strong>v1.0</strong></li>
+          <li><span>PWA status</span><strong id="pwaStatusText">Not installed</strong></li>
+          <li><span>Local storage used</span><strong id="storageUsageText">0 KB</strong></li>
+          <li><span>Saved prompts</span><strong id="savedCountText">0</strong></li>
+        </ul>
+        <div class="settings-card__row">
+          <button class="btn btn--outline btn--sm" id="exportAllBtn" type="button"><i class="fa-solid fa-download"></i> Export all</button>
+          <button class="btn btn--outline btn--sm" id="importAllBtn" type="button"><i class="fa-solid fa-upload"></i> Import</button>
+          <button class="btn btn--danger btn--sm" id="clearAllDataBtn" type="button"><i class="fa-solid fa-trash-can"></i> Clear all data</button>
+        </div>
+        <div class="about-block">
+          <p>PromptoBox is a local-first AI prompt workspace.</p>
+          <p>v1.0 · No account required · No backend · Data stored locally</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== BOTTOM NAVIGATION ===== -->
+  <nav class="bottom-nav" aria-label="Primary">
+    <button class="bottom-nav__item" data-target="save" type="button" aria-label="Save">
+      <i class="fa-solid fa-bookmark"></i>
+      <span>Save</span>
+    </button>
+    <button class="bottom-nav__item bottom-nav__item--primary" data-target="generate" type="button" aria-label="Generate">
+      <span class="bottom-nav__primary-circle"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+      <span>Generate</span>
+    </button>
+    <button class="bottom-nav__item" data-target="settings" type="button" aria-label="Settings">
+      <i class="fa-solid fa-gear"></i>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- ===== MODALS / SHEETS (templates, populated by JS) ===== -->
+
+<div class="sheet-overlay" id="promptViewOverlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="promptViewTitle">
+    <div class="sheet__handle" aria-hidden="true"></div>
+    <div class="sheet__header">
+      <h2 class="sheet__title" id="promptViewTitle">Prompt</h2>
+      <button class="icon-btn" id="promptViewCloseBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="sheet__body">
+      <div class="sheet__meta" id="promptViewMeta"></div>
+      <pre class="result-box__codebox" id="promptViewCodebox" tabindex="0"></pre>
+    </div>
+    <div class="sheet__footer">
+      <button class="icon-btn" id="promptViewCopyBtn" aria-label="Copy" data-tooltip="Copy"><i class="fa-solid fa-copy"></i></button>
+      <button class="icon-btn" id="promptViewShareBtn" aria-label="Share" data-tooltip="Share"><i class="fa-solid fa-share-nodes"></i></button>
+      <button class="icon-btn" id="promptViewFavBtn" aria-label="Toggle favorite" data-tooltip="Favorite"><i class="fa-regular fa-star"></i></button>
+      <button class="icon-btn" id="promptViewEditBtn" aria-label="Edit" data-tooltip="Edit"><i class="fa-solid fa-pen"></i></button>
+      <button class="icon-btn icon-btn--danger" id="promptViewDeleteBtn" aria-label="Delete" data-tooltip="Delete"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="manualSaveOverlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="manualSaveTitle">
+    <div class="sheet__handle" aria-hidden="true"></div>
+    <div class="sheet__header">
+      <h2 class="sheet__title" id="manualSaveTitle">New saved prompt</h2>
+      <button class="icon-btn" id="manualSaveCloseBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form class="sheet__body" id="manualSaveForm">
+      <div class="field-group">
+        <label for="manualTitleInput">Title</label>
+        <input type="text" id="manualTitleInput" placeholder="Give your prompt a name" required maxlength="120">
+      </div>
+      <div class="field-group">
+        <label for="manualPromptInput">Prompt</label>
+        <textarea id="manualPromptInput" rows="8" placeholder="Write or paste your prompt here…" required></textarea>
+      </div>
+      <div class="option-grid option-grid--two">
+        <div class="option-field">
+          <label for="manualCategorySelect">Category</label>
+          <div class="select-wrap">
+            <select id="manualCategorySelect">
+              <option value="general">General</option>
+              <option value="coding">Coding</option>
+              <option value="image">Image</option>
+              <option value="marketing">Marketing</option>
+              <option value="writing">Writing</option>
+              <option value="business">Business</option>
+            </select>
+            <i class="fa-solid fa-chevron-down select-wrap__icon"></i>
+          </div>
+        </div>
+        <div class="option-field option-field--fav">
+          <label for="manualFavToggle">Favorite</label>
+          <button type="button" class="toggle-switch" id="manualFavToggle" role="switch" aria-checked="false">
+            <span class="toggle-switch__thumb"></span>
+          </button>
+        </div>
+      </div>
+      <div class="sheet__form-actions">
+        <button type="button" class="btn btn--ghost" id="manualSaveCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="manualSaveSubmitBtn">Save Prompt</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="editPromptOverlay" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="editPromptTitle">
+    <div class="sheet__handle" aria-hidden="true"></div>
+    <div class="sheet__header">
+      <h2 class="sheet__title" id="editPromptTitle">Edit prompt</h2>
+      <button class="icon-btn" id="editPromptCloseBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form class="sheet__body" id="editPromptForm">
+      <div class="field-group">
+        <label for="editTitleInput">Title</label>
+        <input type="text" id="editTitleInput" required maxlength="120">
+      </div>
+      <div class="field-group">
+        <label for="editPromptInput">Prompt</label>
+        <textarea id="editPromptInput" rows="8" required></textarea>
+      </div>
+      <div class="option-grid option-grid--two">
+        <div class="option-field">
+          <label for="editCategorySelect">Category</label>
+          <div class="select-wrap">
+            <select id="editCategorySelect">
+              <option value="general">General</option>
+              <option value="coding">Coding</option>
+              <option value="image">Image</option>
+              <option value="marketing">Marketing</option>
+              <option value="writing">Writing</option>
+              <option value="business">Business</option>
+            </select>
+            <i class="fa-solid fa-chevron-down select-wrap__icon"></i>
+          </div>
+        </div>
+        <div class="option-field option-field--fav">
+          <label for="editFavToggle">Favorite</label>
+          <button type="button" class="toggle-switch" id="editFavToggle" role="switch" aria-checked="false">
+            <span class="toggle-switch__thumb"></span>
+          </button>
+        </div>
+      </div>
+      <div class="sheet__form-actions">
+        <button type="button" class="btn btn--ghost" id="editPromptCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="editPromptSubmitBtn">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay" hidden>
+  <div class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmBody">
+    <i class="fa-solid fa-triangle-exclamation confirm-box__icon" id="confirmIcon"></i>
+    <h2 id="confirmTitle" class="confirm-box__title">Are you sure?</h2>
+    <p id="confirmBody" class="confirm-box__body"></p>
+    <div class="confirm-box__actions">
+      <button class="btn btn--ghost" id="confirmCancelBtn" type="button">Cancel</button>
+      <button class="btn btn--danger" id="confirmOkBtn" type="button">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="importChoiceOverlay" hidden>
+  <div class="sheet sheet--compact" role="dialog" aria-modal="true" aria-labelledby="importChoiceTitle">
+    <div class="sheet__handle" aria-hidden="true"></div>
+    <div class="sheet__header">
+      <h2 class="sheet__title" id="importChoiceTitle">Import prompts</h2>
+      <button class="icon-btn" id="importChoiceCloseBtn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="sheet__body">
+      <p id="importChoiceSummary" class="import-summary"></p>
+      <div class="import-choice-options">
+        <button class="option-card" id="importMergeBtn" type="button">
+          <i class="fa-solid fa-code-merge"></i>
+          <div>
+            <strong>Merge</strong>
+            <span>Add new prompts alongside your existing ones.</span>
+          </div>
+        </button>
+        <button class="option-card option-card--danger" id="importReplaceBtn" type="button">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <div>
+            <strong>Replace</strong>
+            <span>Delete existing prompts and use only the imported set.</span>
+          </div>
+        </button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ================= SETTINGS VIEW ================= -->
-  <section class="view" id="view-settings" data-view="settings" hidden>
-    <div class="page">
-
-      <div class="page-title-row">
-        <div>
-          <h1 class="page-title">App Settings</h1>
-          <p class="page-sub">Configure your local-first prompt engine.</p>
-        </div>
-      </div>
-
-      <!-- OpenRouter config -->
-      <section class="bento-card">
-        <div class="card-header">
-          <div class="card-header-title">
-            <i class="fa-solid fa-key" aria-hidden="true"></i>
-            <div>
-              <div>OpenRouter Configuration</div>
-              <p class="card-header-sub">Model Gateway &amp; Keys</p>
-            </div>
-          </div>
-          <span class="badge badge-muted" id="keyStatusBadge">NO KEY CONFIGURED</span>
-        </div>
-
-        <div class="notice-box">
-          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-          <p>Your key is stored strictly locally in your browser's <strong>LocalStorage</strong>. It is sent only to OpenRouter's API when generating — never to any other server. Static client-side keys cannot be made truly secret and may be inspected via browser devtools, so use a key configured with sensible usage limits.</p>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label" for="apiKeyInput">API Key</label>
-          <div class="input-with-action">
-            <input type="password" id="apiKeyInput" placeholder="sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false" />
-            <button class="icon-btn" id="toggleKeyVisibilityBtn" type="button" aria-label="Show or hide API key">
-              <i class="fa-solid fa-eye" aria-hidden="true"></i>
-            </button>
-          </div>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn btn-primary" id="saveKeyBtn" type="button"><i class="fa-solid fa-floppy-disk"></i> Save Key</button>
-          <button class="btn btn-secondary" id="clearKeyBtn" type="button"><i class="fa-solid fa-eraser"></i> Clear Key</button>
-        </div>
-
-        <div class="field-group">
-          <div class="field-row-between">
-            <span class="field-label">Diagnostics</span>
-            <button class="btn btn-mint btn-sm" id="testConnectionBtn" type="button"><i class="fa-solid fa-bolt"></i> Test Connection</button>
-          </div>
-          <div class="diagnostics-box" id="diagnosticsBox">Click Test Connection to check latency and model availability.</div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label" for="modelSelect">Default Model</label>
-          <select id="modelSelect" class="select-input">
-            <option value="openrouter/free" selected>openrouter/free (Recommended Default)</option>
-            <option value="meta-llama/llama-3.1-8b-instruct:free">meta-llama/llama-3.1-8b-instruct:free</option>
-            <option value="google/gemini-2.0-flash-exp:free">google/gemini-2.0-flash-exp:free</option>
-            <option value="custom">Custom model ID…</option>
-          </select>
-          <input type="text" id="customModelInput" class="text-input" placeholder="e.g. anthropic/claude-3.5-sonnet" hidden />
-        </div>
-      </section>
-
-      <!-- Advanced generation settings -->
-      <section class="bento-card">
-        <button class="card-header card-header-btn" id="advancedToggle" type="button" aria-expanded="false" aria-controls="advancedPanel">
-          <div class="card-header-title">
-            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-            <div>
-              <div>Advanced Generation Settings</div>
-              <p class="card-header-sub">Temperature, Tokens &amp; Top P</p>
-            </div>
-          </div>
-          <i class="fa-solid fa-chevron-down chevron" id="advancedChevron" aria-hidden="true"></i>
-        </button>
-        <div class="advanced-panel" id="advancedPanel" hidden>
-          <div class="slider-field">
-            <div class="field-row-between"><label for="temperatureInput">Temperature</label><span id="temperatureValue">0.7</span></div>
-            <input type="range" id="temperatureInput" min="0" max="2" step="0.1" value="0.7" />
-          </div>
-          <div class="slider-field">
-            <div class="field-row-between"><label for="maxTokensInput">Max Tokens</label><span id="maxTokensValue">2048</span></div>
-            <input type="range" id="maxTokensInput" min="256" max="8192" step="256" value="2048" />
-          </div>
-          <div class="slider-field">
-            <div class="field-row-between"><label for="topPInput">Top P</label><span id="topPValue">1.0</span></div>
-            <input type="range" id="topPInput" min="0" max="1" step="0.05" value="1" />
-          </div>
-          <div class="slider-field">
-            <div class="field-row-between"><label for="freqPenaltyInput">Frequency Penalty</label><span id="freqPenaltyValue">0.0</span></div>
-            <input type="range" id="freqPenaltyInput" min="-2" max="2" step="0.1" value="0" />
-          </div>
-          <div class="slider-field">
-            <div class="field-row-between"><label for="presPenaltyInput">Presence Penalty</label><span id="presPenaltyValue">0.0</span></div>
-            <input type="range" id="presPenaltyInput" min="-2" max="2" step="0.1" value="0" />
-          </div>
-          <button class="link-btn" id="resetAdvancedBtn" type="button">Reset to defaults</button>
-        </div>
-      </section>
-
-      <!-- Appearance -->
-      <section class="bento-card">
-        <div class="card-header">
-          <div class="card-header-title">
-            <i class="fa-solid fa-palette" aria-hidden="true"></i>
-            <div>
-              <div>Appearance &amp; Shell</div>
-              <p class="card-header-sub">Theme Mode Preference</p>
-            </div>
-          </div>
-        </div>
-        <div class="theme-row" role="group" aria-label="Theme selection">
-          <button class="theme-btn" data-theme="light" type="button"><i class="fa-solid fa-sun"></i> Light</button>
-          <button class="theme-btn is-active" data-theme="dark" type="button"><i class="fa-solid fa-moon"></i> Dark</button>
-          <button class="theme-btn" data-theme="system" type="button"><i class="fa-solid fa-gear"></i> System</button>
-        </div>
-        <p class="theme-current">Currently active theme: <span id="currentThemeLabel">Dark</span></p>
-      </section>
-
-      <!-- Data & storage -->
-      <section class="bento-card">
-        <div class="card-header">
-          <div class="card-header-title">
-            <i class="fa-solid fa-database" aria-hidden="true"></i>
-            <div>
-              <div>Data &amp; Local Storage</div>
-              <p class="card-header-sub">Prompts &amp; Workspace state</p>
-            </div>
-          </div>
-          <span class="badge badge-mint" id="pwaStatusBadge">OFFLINE READY</span>
-        </div>
-        <div class="stats-row stats-row-2">
-          <div class="stat-item"><span class="stat-value" id="settingsStatCount">0</span><span class="stat-label">prompts stored</span></div>
-          <div class="stat-item"><span class="stat-value" id="settingsStatSize">0 KB / 5.0 MB</span><span class="stat-label">LocalStorage used</span></div>
-        </div>
-        <p class="storage-note">Stored entirely on this device. No remote backup.</p>
-        <div class="btn-col">
-          <button class="btn btn-secondary" id="settingsExportBtn" type="button"><i class="fa-solid fa-download"></i> Export All Prompts (JSON)</button>
-          <button class="btn btn-secondary" id="settingsImportBtn" type="button"><i class="fa-solid fa-upload"></i> Import Prompts (JSON)</button>
-          <input type="file" id="settingsImportFileInput" accept="application/json" hidden />
-          <button class="btn btn-danger" id="clearAllDataBtn" type="button"><i class="fa-solid fa-triangle-exclamation"></i> Clear All Local Data</button>
-        </div>
-      </section>
-
-      <!-- About -->
-      <section class="bento-card about-card">
-        <div class="about-header">
-          <img src="assets/logo.png" alt="PromptoBox logo" width="44" height="44" />
-          <div>
-            <div class="about-title">PromptoBox <span class="badge">v1.0</span></div>
-            <p class="card-header-sub">Production Build · PWA Standalone Ready</p>
-          </div>
-        </div>
-        <p class="about-body">PromptoBox is a local-first AI prompt workspace. Your ideas go in one box. Powerful prompts come out. No account required. No backend. Data stored locally.</p>
-        <div class="about-links">
-          <a class="about-link" href="https://github.com/" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-github"></i> Open Source</a>
-          <a class="about-link" href="https://openrouter.ai/docs" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-book"></i> OpenRouter Docs</a>
-          <span class="about-link about-link-static"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> PWA Validated</span>
-        </div>
-      </section>
-
-    </div>
-  </section>
-
-</main>
-
-<!-- ============ BOTTOM NAV ============ -->
-<nav class="bottom-nav" aria-label="Primary" role="navigation">
-  <button class="nav-item" data-target="save" type="button">
-    <i class="fa-solid fa-bookmark" aria-hidden="true"></i>
-    <span>Save</span>
-  </button>
-  <button class="nav-item nav-item-primary is-active" data-target="generate" type="button" aria-current="page">
-    <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-    <span>Generate</span>
-  </button>
-  <button class="nav-item" data-target="settings" type="button">
-    <i class="fa-solid fa-gear" aria-hidden="true"></i>
-    <span>Settings</span>
-  </button>
-</nav>
-
-<script src="js/app.js"></script>
+<script src="js/app.js" defer></script>
 </body>
 </html>

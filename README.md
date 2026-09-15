@@ -1,146 +1,160 @@
-# PromptoBox
+# PromptoBox v1.0.0
 
-**Simple ideas. Powerful prompts.**
-*A bento box for prompts.*
+**A bento box for prompts.**
 
-PromptoBox is a local-first, static, installable Progressive Web App. Describe what you want in plain language and it turns that into a detailed, professional master prompt using the OpenRouter API. There is no backend, no database, and no account system — your ideas go in one box, powerful prompts come out.
+Your ideas go in one box. Powerful prompts come out.
 
----
-
-## ✨ Features
-
-- **Generate** — natural-language input, quick starters, category/tone/format/detail controls, animated "building your prompt" reveal, and a clean monospace result box with Copy / Save / Share / Regenerate.
-- **Save** — a personal, searchable, filterable, sortable library of your generated prompts, stored entirely in `localStorage`, with favorites, JSON export, and JSON import.
-- **Settings** — OpenRouter API key management (local only), model selection, advanced generation parameters (temperature, max tokens, top‑p, frequency/presence penalty), Light/Dark/System theme, storage tools, and about info.
-- **PWA** — installable on desktop and mobile, offline-capable app shell via a service worker, install banner, and offline detection.
+PromptoBox is a local-first Progressive Web App that turns plain-language ideas into detailed, professional master prompts using the OpenRouter API. It's built entirely with HTML5, CSS3, and vanilla JavaScript — no framework, no build step, no backend.
 
 ---
 
-## 🚀 Deploying to GitHub Pages
+## Project structure
 
-1. Create a new GitHub repository (or use an existing one) and push the contents of this folder to the repository root (or to a `/docs` folder if you prefer).
-2. In your repository, go to **Settings → Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**, pick the branch (e.g. `main`) and the folder (`/root` or `/docs`).
-4. Save. GitHub will publish the site at `https://<your-username>.github.io/<repo-name>/`.
-5. Open the published URL. Because PromptoBox is 100% static files (`index.html`, `manifest.json`, `sw.js`, CSS, JS, and images), no build step or server is required.
+```
+promptobox/
+├── index.html          # App shell + all three screens (Generate, Save, Settings)
+├── manifest.json        # PWA manifest
+├── sw.js                 # Service worker (static asset caching, offline fallback)
+├── README.md
+├── assets/
+│   ├── logo.png           # Official PromptoBox brand logo (source asset)
+│   ├── icon-192.png        # 192×192 app icon (derived from logo)
+│   ├── icon-512.png        # 512×512 app icon (derived from logo)
+│   └── favicon.png          # 64×64 favicon (derived from logo)
+├── css/
+│   └── styles.css          # All styling: tokens, layout, components, themes
+└── js/
+    └── app.js              # All application logic, organized by module
+```
 
-> **Note:** The service worker (`sw.js`) uses relative paths (`./`) so it works correctly whether the app is hosted at a domain root or in a sub-path like `/promptobox/`.
+`js/app.js` is organized into clearly separated modules (each a plain object or set of functions): `Store` (LocalStorage layer), `Toast`, `Nav`, `ThemeManager`, `NetStatus`, `InstallManager`, `OpenRouterAPI`, `GenerateScreen`, `SaveScreen`, `PromptViewer`, `ManualSave`, `EditPrompt`, `ImportExport`, `ImportChoice`, `SettingsScreen`, and `ConfirmDialog`. There is no bundler — everything runs directly as loaded.
 
 ---
 
-## 🔑 OpenRouter API Configuration
+## Deploying to GitHub Pages
 
-PromptoBox talks directly to OpenRouter's `chat/completions` endpoint from the browser.
+1. Push this folder to a GitHub repository (the contents of `promptobox/`, not a wrapping folder, should be at the repo root or in `/docs`).
+2. In the repo, go to **Settings → Pages**, and set the source to the branch/folder containing `index.html`.
+3. GitHub Pages serves everything over HTTPS automatically — this is required for the service worker, Clipboard API, and Web Share API to function.
+4. No build step is required. The site is ready to serve as static files.
 
-1. Create a free account at [openrouter.ai](https://openrouter.ai) and generate an API key.
-2. Open PromptoBox → **Settings** → paste your key into **API Key** → **Save Key**.
-3. Optionally tap **Test Connection** to confirm the key works.
-4. Choose a **Default Model** (defaults to `openrouter/auto`, which lets OpenRouter route to a suitable free/low-cost model). You can also type any OpenRouter model ID manually.
-5. Adjust **Advanced Generation Settings** (temperature, max tokens, top‑p, penalties) if desired.
+### HTTPS requirement
+
+PWA install prompts, service worker registration, and the Clipboard API only work in a **secure context** (HTTPS or `localhost`). GitHub Pages satisfies this automatically. If you host elsewhere, ensure HTTPS is enabled.
+
+---
+
+## OpenRouter API configuration
+
+PromptoBox uses the OpenRouter chat completions API (`https://openrouter.ai/api/v1/chat/completions`) directly from the browser.
+
+1. Create an account at [openrouter.ai](https://openrouter.ai) and generate an API key.
+2. Open PromptoBox → **Settings → OpenRouter API**, paste your key, and tap **Save Key**.
+3. Optionally tap **Test connection** to verify the key works.
+4. The default model is `openrouter/free`. You can switch to **Custom model…** and enter any OpenRouter model ID (e.g. `anthropic/claude-3.5-sonnet`).
 
 ### ⚠️ Client-side API key limitations
 
-Because PromptoBox is a static, backend-less app, your API key is stored in your browser's `localStorage` and sent **only** to OpenRouter when you generate a prompt. It is **never** sent anywhere else.
+Because PromptoBox is a fully static, backend-free app, your API key is stored **only in this browser's LocalStorage** and is sent **directly from your browser to OpenRouter** with each generation request. It is never sent anywhere else.
 
-However: **a key embedded in client-side JavaScript or stored in browser storage can, in principle, be inspected by anyone with access to that browser** (via devtools, extensions, or the network tab). For this reason:
+This means:
+- Anyone with access to this browser/device can inspect the key (e.g. via DevTools).
+- The key is **not secret** in the way a server-side key would be.
+- **Recommended:** create a dedicated OpenRouter key for PromptoBox with a **spending limit** and, if possible, model restrictions, so exposure risk is bounded.
 
-- Use a key with a **spending/usage limit** configured in your OpenRouter dashboard.
-- Don't reuse a key that has access to sensitive organization billing.
-- Treat the key as semi-public if you share your device or browser profile.
+PromptoBox never transmits your key or your LocalStorage data anywhere except the OpenRouter request needed to generate a prompt.
 
 ---
 
-## 💾 LocalStorage behavior
+## LocalStorage behavior
 
-PromptoBox stores everything under a handful of `localStorage` keys, all namespaced with `promptobox_`:
+All data lives in the browser's LocalStorage under keys prefixed `promptobox_`:
 
-| Key | Purpose |
+| Key | Contents |
 |---|---|
-| `promptobox_prompts_v1` | Your saved prompt library (array of prompt objects) |
-| `promptobox_api_key_v1` | Your OpenRouter API key |
-| `promptobox_model_v1` | Your selected default model |
-| `promptobox_theme_v1` | `light` / `dark` / `system` |
-| `promptobox_gen_settings_v1` | Temperature, max tokens, top‑p, penalties |
-| `promptobox_install_dismissed_v1` | Whether you dismissed the install banner |
+| `promptobox_prompts_v1` | Array of saved prompt objects (see schema below) |
+| `promptobox_api_key_v1` | OpenRouter API key (plain string) |
+| `promptobox_model_v1` | Selected model (`openrouter/free` or `custom`) |
+| `promptobox_custom_model_v1` | Custom model ID string |
+| `promptobox_gen_params_v1` | Generation parameters (temperature, max_tokens, top_p, etc.) |
+| `promptobox_theme_v1` | Theme preference (`light` / `dark` / `system`) |
 
-Nothing is ever sent to a remote server except the OpenRouter generation request itself. Clearing your browser data, using a different browser, or using private/incognito mode will not carry your data over — use **Export** first if you want a backup.
+Nothing is sent to any server except the explicit OpenRouter generation/test-connection requests. There is no analytics, no telemetry, no account system.
+
+**Settings → Clear all local data** permanently removes everything above from this browser. This cannot be undone.
 
 ---
 
-## 📤 Import / Export format
+## Saved prompt JSON schema
 
-**Export** (Save page → Export Box, or Settings → Export All Prompts) downloads a JSON file shaped like:
+Each saved prompt is an object:
+
+```json
+{
+  "id": "p_m1a2b3c4_xyz789",
+  "title": "Modern coffee shop landing page",
+  "prompt": "ROLE\nYou are a senior frontend designer...\n\nOBJECTIVE\n...",
+  "preview": "ROLE You are a senior frontend designer...",
+  "category": "coding",
+  "favorite": false,
+  "createdAt": "2026-09-15T10:22:00.000Z",
+  "updatedAt": "2026-09-15T10:22:00.000Z",
+  "source": "generated"
+}
+```
+
+- `category` is one of: `general`, `coding`, `image`, `marketing`, `writing`, `business`.
+- `source` is `"generated"` or `"manual"`.
+
+### Export
+
+**Save → Export** (or **Settings → Export all**) downloads a JSON file:
 
 ```json
 {
   "app": "PromptoBox",
-  "version": "1.0.0",
-  "exportedAt": "2026-09-15T12:00:00.000Z",
-  "prompts": [
-    {
-      "id": "p_abc123",
-      "title": "Cold-Brew Coffee Shop Landing Page Copy",
-      "full": "ROLE\nYou are ...",
-      "preview": "ROLE You are ...",
-      "category": "copy",
-      "favorite": false,
-      "createdAt": 1737000000000
-    }
-  ]
+  "version": "1.0",
+  "exportedAt": "2026-09-15T10:22:00.000Z",
+  "prompts": [ /* array of prompt objects */ ]
 }
 ```
 
-**Import** accepts either that exact shape, or a bare array of prompt objects with at least a `full` (or `text`) field. Invalid JSON, missing fields, or malformed entries are skipped gracefully — valid entries are merged into your existing library without overwriting anything, and duplicate IDs are ignored.
+### Import
+
+**Save → Import** (or **Settings → Import**) accepts either the export format above, or a bare array of prompt objects. Each entry is validated — a valid entry needs at minimum a non-empty `title` and `prompt` string; anything else is filled in with sensible defaults or rejected. Invalid files show a friendly error and never touch existing data. Imported content is only ever treated as text — nothing is executed or rendered as HTML.
+
+After a valid file is selected, you choose:
+- **Merge** — adds new prompts (skipping any with an ID that already exists) alongside your current collection.
+- **Replace** — deletes existing prompts and replaces them with the imported set (requires confirmation).
 
 ---
 
-## 📴 Offline behavior
+## Offline capabilities
 
-- The service worker caches the app shell (HTML, CSS, JS, icons) on first load, so PromptoBox opens and your **Saved Prompts** remain fully browsable offline.
-- **Generating new prompts requires an internet connection**, since it calls the live OpenRouter API. If you're offline, the Generate button will show a friendly message instead of failing silently.
-- An offline banner appears automatically when your connection drops, and disappears when it's restored.
+- The service worker (`sw.js`) precaches the app shell (HTML, CSS, JS, icons) on first load.
+- Once cached, PromptoBox loads and is fully navigable offline: Save and Settings screens, search/filter, manual save, editing, deleting, import, and export all work without a network connection.
+- **AI generation requires network access** (it calls OpenRouter directly) — when offline, the Generate button is disabled and a note explains why.
+- OpenRouter API responses are **never** cached by the service worker; only static assets are cached.
 
----
+## Installation behavior
 
-## 🧭 Basic usage
+- On supporting browsers, PromptoBox listens for `beforeinstallprompt` and shows a custom **"Install PromptoBox"** banner (never the browser's default install UI as part of the app chrome).
+- Dismissing the banner hides it for the session (remembered via LocalStorage).
+- Once installed, `display-mode: standalone` is detected and reflected in **Settings → App information → PWA status**.
 
-1. **Generate:** Type what you want in plain language (or tap a Quick Starter), optionally tune category/format/tone/detail, then tap **Generate Master Prompt**.
-2. **Review:** Watch the prompt build in the monospace result box, then **Copy**, **Save**, **Share**, or **Regenerate**.
-3. **Save tab:** Browse, search, filter by category, sort, favorite, view full-screen, or delete any saved prompt. Export or import your whole box as JSON any time.
-4. **Settings tab:** Manage your API key, model, generation parameters, theme, and local data.
+## Model configuration
 
----
+- Default: `openrouter/free`, shown as **Current model: openrouter/free** in Settings.
+- Switch to **Custom model…** to type any valid OpenRouter model ID.
+- Generation parameters (Temperature, Max Tokens, Top P, Frequency Penalty, Presence Penalty) live under **Advanced Generation Settings** and persist locally.
 
-## 🛠 Tech stack
+## Basic usage
 
-HTML5 · CSS3 (custom properties, no framework) · Vanilla JavaScript (ES2017+, no build step) · PWA (Web App Manifest + Service Worker) · `localStorage` · Clipboard API · Web Share API · File API · [OpenRouter](https://openrouter.ai) Chat Completions API · [Font Awesome](https://fontawesome.com) icons (via CDN).
-
-No Node.js, no Express, no PHP/Python backend, no Firebase/Supabase, no database, no authentication server. 100% static files, deployable anywhere that serves HTML.
-
----
-
-## 📁 Project structure
-
-```
-promptobox/
-├── index.html
-├── manifest.json
-├── sw.js
-├── README.md
-├── assets/
-│   ├── logo.png
-│   ├── icon-192.png
-│   ├── icon-192-maskable.png
-│   ├── icon-512.png
-│   ├── icon-512-maskable.png
-│   ├── apple-touch-icon.png
-│   └── favicon.png
-├── css/
-│   └── styles.css
-└── js/
-    └── app.js
-```
+1. **Generate** — describe what you need in plain language, optionally set type/tone/format/detail, tap **Generate Prompt**.
+2. Copy, share, save, or regenerate the result.
+3. **Save** — browse your saved prompts as bento cards; search, filter by category, sort, or favorite. Tap **+** to write a prompt manually without using AI.
+4. **Settings** — configure your OpenRouter key and model, tune generation parameters, choose a theme, and manage your local data.
 
 ---
 
-*PromptoBox v1.0 — Your ideas go in one box. Powerful prompts come out.*
+*PromptoBox is a local-first AI prompt workspace. v1.0 · No account required · No backend · Data stored locally.*
